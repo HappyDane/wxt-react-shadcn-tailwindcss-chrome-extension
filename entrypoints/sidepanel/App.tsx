@@ -3,9 +3,9 @@ import { AppShell } from "@/components/app/app-shell";
 import { useTheme } from "@/components/theme-provider";
 
 export default function App() {
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   return (
-    <div className={theme}>
+    <div className={resolvedTheme}>
       <div className="fixed inset-0 bg-background">
         <AppShell />
       </div>

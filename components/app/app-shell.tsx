@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { browser } from "wxt/browser";
 import { Header } from "@/components/app/header";
 import { Home } from "@/components/app/home";
 import { SettingsPage } from "@/components/app/settings-page";
 import { Sidebar, type SidebarType } from "@/components/app/sidebar";
 import { useTheme } from "@/components/theme-provider";
-import { MessageType, type ExtMessage } from "@/lib/messaging";
+import { onMessage } from "@/lib/messaging";
+import { getStored } from "@/lib/storage";
 
 interface AppShellProps {
   onClose?: () => void;
@@ -15,26 +15,21 @@ interface AppShellProps {
 export function AppShell({ onClose }: AppShellProps) {
   const [active, setActive] = useState<SidebarType>("home");
   const { i18n } = useTranslation();
-  const { toggleTheme } = useTheme();
+  const { setTheme } = useTheme();
 
   useEffect(() => {
-    const listener = (message: ExtMessage) => {
-      if (message.messageType === MessageType.changeLocale && message.content) {
-        i18n.changeLanguage(message.content);
-      } else if (
-        message.messageType === MessageType.changeTheme &&
-        message.content
-      ) {
-        toggleTheme(message.content);
+    return onMessage((message) => {
+      if (message.type === "changeLocale") {
+        void i18n.changeLanguage(message.locale);
+      } else if (message.type === "changeTheme") {
+        setTheme(message.theme);
       }
-    };
-    browser.runtime.onMessage.addListener(listener);
-    return () => browser.runtime.onMessage.removeListener(listener);
-  }, [i18n, toggleTheme]);
+    });
+  }, [i18n, setTheme]);
 
   useEffect(() => {
-    browser.storage.local.get("i18n").then((data) => {
-      if (data.i18n) i18n.changeLanguage(data.i18n as string);
+    getStored("locale").then((locale) => {
+      if (locale) void i18n.changeLanguage(locale);
     });
   }, [i18n]);
 

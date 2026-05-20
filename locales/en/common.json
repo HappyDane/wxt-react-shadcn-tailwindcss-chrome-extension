@@ -1,9 +1,14 @@
 {
   "home": "Home",
   "settings": "Settings",
-  "themeSettings": "Theme Settings",
+  "themeSettings": "Theme",
   "i18nSettings": "Interface Language",
-  "introduce": "Introduce",
-  "description": "This is a boilerplate and starter for chrome browser extension, built with Wxt、 React、 Tailwind css 、Shadcn ui and Typescript.\nSupport dark mode and localization ",
-  "reference": "Reference"
+  "introduce": "Introduction",
+  "description": "A Chrome MV3 extension starter built with WXT, React, Tailwind CSS, shadcn/ui and TypeScript. Includes dark mode and localization.",
+  "reference": "References",
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  }
 }

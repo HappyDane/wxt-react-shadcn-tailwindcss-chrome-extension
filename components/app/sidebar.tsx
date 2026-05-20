@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Home, Settings as SettingsIcon, X } from "lucide-react";
 import {
   Tooltip,

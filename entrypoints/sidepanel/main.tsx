@@ -15,4 +15,3 @@ initTranslations(i18nConfig.defaultLocale, ["common", "sidepanel"]).then(() => {
     </React.StrictMode>
   );
 });
-
