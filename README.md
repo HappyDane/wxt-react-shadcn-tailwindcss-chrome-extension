@@ -68,7 +68,10 @@ extension. WXT will hot-reload on save.
 | `npm run compile`       | `tsc --noEmit` typecheck                    |
 | `npm run lint`          | ESLint, zero warnings                       |
 | `npm run format`        | Prettier write                              |
-| `npm run check`         | Typecheck + lint + format check (CI mirror) |
+| `npm run test`          | Vitest (JSDOM unit + component tests)       |
+| `npm run test:watch`    | Vitest in watch mode                        |
+| `npm run test:coverage` | Vitest with v8 coverage                     |
+| `npm run check`         | Typecheck + lint + format + test (CI mirror)|
 
 ## Adding a shadcn component
 
@@ -163,6 +166,34 @@ Add a new preset by:
 The `ThemeRoot` component (`components/app/theme-root.tsx`) applies both the
 `light`/`dark` class and the preset attribute — wrap each entrypoint's tree
 in `<ThemeRoot>`.
+
+## Testing
+
+[Vitest](https://vitest.dev) drives unit + component tests in JSDOM. The
+`wxt/browser` module is globally mocked by `tests/setup.ts` — every test
+gets a fresh in-memory `browser.storage.local`, message bus and command
+registry from `tests/mocks/browser.ts`. Call `emitStorageChange(...)` from
+the mock to simulate writes from another extension surface.
+
+Run on every save:
+
+```bash
+npm run test:watch
+```
+
+Examples that ship:
+
+| File                                    | What it covers                            |
+| --------------------------------------- | ----------------------------------------- |
+| `lib/storage.test.ts`                   | Typed get/set + the legacy locale key     |
+| `lib/messaging.test.ts`                 | `sendMessage`, broadcasting, unsubscribe  |
+| `lib/store.test.ts`                     | Setters persist, hydration, cross-surface sync |
+| `components/app/sidebar.test.tsx`       | Renders, click → callback, aria-current   |
+
+There are no end-to-end (Playwright) tests by default. If you need one,
+build the extension (`npm run build`) and load `.output/chrome-mv3` with
+`--disable-extensions-except=...` from a Playwright spec — but most
+template changes are well-covered by Vitest alone.
 
 ## Notes on Tailwind in shadow DOM
 
