@@ -4,6 +4,7 @@ import { browser } from "wxt/browser";
 import { ExternalLink, PanelRightOpen, Settings2, Eye } from "lucide-react";
 import "../../assets/main.css";
 import { Button } from "@/components/ui/button";
+import { ThemeRoot } from "@/components/app/theme-root";
 import { useTheme } from "@/components/theme-provider";
 import languages from "@/components/i18nConfig";
 import { sendMessage } from "@/lib/messaging";
@@ -12,7 +13,7 @@ import { getStored, setStored, type ThemeMode } from "@/lib/storage";
 const THEMES: ThemeMode[] = ["light", "dark", "system"];
 
 export default function App() {
-  const { theme, resolvedTheme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const { t, i18n } = useTranslation();
 
   useEffect(() => {
@@ -54,7 +55,7 @@ export default function App() {
   };
 
   return (
-    <div className={resolvedTheme}>
+    <ThemeRoot>
       <div className="flex flex-col gap-3 bg-background p-4 text-foreground">
         <h1 className="text-base font-semibold">{t("extName", "Extension")}</h1>
 
@@ -121,6 +122,6 @@ export default function App() {
           </div>
         </div>
       </div>
-    </div>
+    </ThemeRoot>
   );
 }

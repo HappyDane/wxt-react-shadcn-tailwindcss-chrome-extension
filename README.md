@@ -21,7 +21,7 @@ A batteries-included Chrome MV3 (and Firefox) extension starter built with:
 | shadcn primitives    | `components/ui/`               | `npx shadcn-ui@latest add` to extend      |
 | Typed IPC            | `lib/messaging.ts`             | Discriminated-union messages              |
 | Typed storage        | `lib/storage.ts`               | `browser.storage.local` with a schema     |
-| Theme                | `components/theme-provider.tsx`| `light` / `dark` / `system` + persistence |
+| Theme                | `components/theme-provider.tsx`| `light` / `dark` / `system` + accent presets, persisted |
 | Localization         | `locales/` + `public/_locales/`| i18next for UI, Chrome `_locales` for manifest |
 
 ### How the surfaces connect
@@ -126,6 +126,22 @@ initTranslations(i18nConfig.defaultLocale, ["common", "sidepanel"]);
 Manifest-level strings (extension name, description) live in
 `public/_locales/<locale>/messages.json` — referenced as `__MSG_extName__` in
 `wxt.config.ts`.
+
+## Theme presets
+
+Four accent palettes ship out of the box: `violet` (default), `zinc`, `green`,
+`rose`. Each is a small block of CSS variable overrides in `assets/main.css`
+and is selected via a `data-theme-preset="..."` attribute on the theme root.
+
+Add a new preset by:
+
+1. Defining `[data-theme-preset="..."]` and `.dark[data-theme-preset="..."]`
+   blocks in `assets/main.css`.
+2. Appending the id to `THEME_PRESETS` in `lib/storage.ts`.
+
+The `ThemeRoot` component (`components/app/theme-root.tsx`) applies both the
+`light`/`dark` class and the preset attribute — wrap each entrypoint's tree
+in `<ThemeRoot>`.
 
 ## Notes on Tailwind in shadow DOM
 

@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+  /* Default palette (violet) — applies when no [data-theme-preset] is set. */
   :root {
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
@@ -46,6 +47,57 @@
     --border: 215 27.9% 16.9%;
     --input: 215 27.9% 16.9%;
     --ring: 263.4 70% 50.4%;
+  }
+
+  /* ---------------------------- Theme presets ----------------------------
+   * Each preset overrides only the accent surfaces (primary + ring).
+   * Add a new preset by:
+   *   1. Adding light + dark rules below
+   *   2. Adding the id to THEME_PRESETS in lib/storage.ts
+   * ---------------------------------------------------------------------- */
+
+  [data-theme-preset="zinc"] {
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --ring: 240 5.9% 10%;
+  }
+  .dark[data-theme-preset="zinc"] {
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --ring: 240 4.9% 83.9%;
+  }
+
+  [data-theme-preset="violet"] {
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 20% 98%;
+    --ring: 262.1 83.3% 57.8%;
+  }
+  .dark[data-theme-preset="violet"] {
+    --primary: 263.4 70% 50.4%;
+    --primary-foreground: 210 20% 98%;
+    --ring: 263.4 70% 50.4%;
+  }
+
+  [data-theme-preset="green"] {
+    --primary: 142.1 76.2% 36.3%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --ring: 142.1 76.2% 36.3%;
+  }
+  .dark[data-theme-preset="green"] {
+    --primary: 142.1 70.6% 45.3%;
+    --primary-foreground: 144.9 80.4% 10%;
+    --ring: 142.4 71.8% 29.2%;
+  }
+
+  [data-theme-preset="rose"] {
+    --primary: 346.8 77.2% 49.8%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --ring: 346.8 77.2% 49.8%;
+  }
+  .dark[data-theme-preset="rose"] {
+    --primary: 346.8 77.2% 49.8%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --ring: 346.8 77.2% 49.8%;
   }
 }
 

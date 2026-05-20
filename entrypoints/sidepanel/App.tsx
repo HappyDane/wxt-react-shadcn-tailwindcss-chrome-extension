@@ -1,14 +1,13 @@
 import "../../assets/main.css";
 import { AppShell } from "@/components/app/app-shell";
-import { useTheme } from "@/components/theme-provider";
+import { ThemeRoot } from "@/components/app/theme-root";
 
 export default function App() {
-  const { resolvedTheme } = useTheme();
   return (
-    <div className={resolvedTheme}>
+    <ThemeRoot>
       <div className="fixed inset-0 bg-background">
         <AppShell />
       </div>
-    </div>
+    </ThemeRoot>
   );
 }

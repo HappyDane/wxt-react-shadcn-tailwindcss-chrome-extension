@@ -15,7 +15,7 @@ interface AppShellProps {
 export function AppShell({ onClose }: AppShellProps) {
   const [active, setActive] = useState<SidebarType>("home");
   const { i18n } = useTranslation();
-  const { setTheme } = useTheme();
+  const { setTheme, setPreset } = useTheme();
 
   useEffect(() => {
     return onMessage((message) => {
@@ -23,9 +23,11 @@ export function AppShell({ onClose }: AppShellProps) {
         void i18n.changeLanguage(message.locale);
       } else if (message.type === "changeTheme") {
         setTheme(message.theme);
+      } else if (message.type === "changeThemePreset") {
+        setPreset(message.preset);
       }
     });
-  }, [i18n, setTheme]);
+  }, [i18n, setTheme, setPreset]);
 
   useEffect(() => {
     getStored("locale").then((locale) => {

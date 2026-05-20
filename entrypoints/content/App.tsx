@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import "../../assets/main.css";
 import { AppShell } from "@/components/app/app-shell";
-import { useTheme } from "@/components/theme-provider";
+import { ThemeRoot } from "@/components/app/theme-root";
 import { onMessage } from "@/lib/messaging";
 
 export default function App() {
   const [visible, setVisible] = useState(true);
-  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     return onMessage((message) => {
@@ -19,10 +18,10 @@ export default function App() {
   if (!visible) return null;
 
   return (
-    <div className={resolvedTheme}>
+    <ThemeRoot>
       <div className="fixed right-0 top-0 z-[1000000] h-screen w-[400px] rounded-l-xl bg-background shadow-2xl">
         <AppShell onClose={() => setVisible(false)} />
       </div>
-    </div>
+    </ThemeRoot>
   );
 }

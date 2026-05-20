@@ -2,6 +2,7 @@
   "home": "Home",
   "settings": "Settings",
   "themeSettings": "Theme",
+  "presetSettings": "Accent Color",
   "i18nSettings": "Interface Language",
   "language": "Language",
   "openSidePanel": "Open Side Panel",
@@ -14,5 +15,11 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System"
+  },
+  "preset": {
+    "violet": "Violet",
+    "zinc": "Zinc",
+    "green": "Green",
+    "rose": "Rose"
   }
 }

@@ -1,5 +1,5 @@
 import { browser } from "wxt/browser";
-import type { ThemeMode } from "@/lib/storage";
+import type { ThemeMode, ThemePreset } from "@/lib/storage";
 
 /**
  * Typed, discriminated-union message protocol for all IPC inside the
@@ -9,6 +9,7 @@ import type { ThemeMode } from "@/lib/storage";
 export type ExtMessage =
   | { type: "toggleContent" }
   | { type: "changeTheme"; theme: ThemeMode }
+  | { type: "changeThemePreset"; preset: ThemePreset }
   | { type: "changeLocale"; locale: string };
 
 export type ExtMessageType = ExtMessage["type"];

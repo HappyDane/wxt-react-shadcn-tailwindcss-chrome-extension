@@ -7,17 +7,21 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { getStored, setStored, type ThemeMode } from "@/lib/storage";
+import {
+  getStored,
+  setStored,
+  type ThemeMode,
+  type ThemePreset,
+} from "@/lib/storage";
 
 type ResolvedTheme = "light" | "dark";
 
 interface ThemeContextValue {
-  /** User preference: 'light' | 'dark' | 'system'. */
   theme: ThemeMode;
-  /** What's actually being applied (system resolved). */
   resolvedTheme: ResolvedTheme;
-  /** Set + persist the preference. */
   setTheme: (theme: ThemeMode) => void;
+  preset: ThemePreset;
+  setPreset: (preset: ThemePreset) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -38,18 +42,24 @@ function getSystemTheme(): ResolvedTheme {
 interface ThemeProviderProps {
   children: ReactNode;
   defaultTheme?: ThemeMode;
+  defaultPreset?: ThemePreset;
 }
 
 export function ThemeProvider({
   children,
   defaultTheme = "system",
+  defaultPreset = "violet",
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<ThemeMode>(defaultTheme);
+  const [preset, setPresetState] = useState<ThemePreset>(defaultPreset);
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(getSystemTheme);
 
   useEffect(() => {
     getStored("theme").then((stored) => {
       if (stored) setThemeState(stored);
+    });
+    getStored("themePreset").then((stored) => {
+      if (stored) setPresetState(stored);
     });
   }, []);
 
@@ -66,11 +76,16 @@ export function ThemeProvider({
     void setStored("theme", next);
   }, []);
 
+  const setPreset = useCallback((next: ThemePreset) => {
+    setPresetState(next);
+    void setStored("themePreset", next);
+  }, []);
+
   const resolvedTheme: ResolvedTheme = theme === "system" ? systemTheme : theme;
 
   const value = useMemo(
-    () => ({ theme, resolvedTheme, setTheme }),
-    [theme, resolvedTheme, setTheme]
+    () => ({ theme, resolvedTheme, setTheme, preset, setPreset }),
+    [theme, resolvedTheme, setTheme, preset, setPreset]
   );
 
   return (

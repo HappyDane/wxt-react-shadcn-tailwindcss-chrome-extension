@@ -25,6 +25,7 @@ export default defineBackground(() => {
     const message = raw as ExtMessage;
     if (
       message.type === "changeTheme" ||
+      message.type === "changeThemePreset" ||
       message.type === "changeLocale" ||
       message.type === "toggleContent"
     ) {

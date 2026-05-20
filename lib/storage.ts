@@ -2,13 +2,18 @@ import { browser } from "wxt/browser";
 
 export type ThemeMode = "light" | "dark" | "system";
 
+export const THEME_PRESETS = ["violet", "zinc", "green", "rose"] as const;
+export type ThemePreset = (typeof THEME_PRESETS)[number];
+
 export interface StorageSchema {
   theme: ThemeMode;
+  themePreset: ThemePreset;
   locale: string;
 }
 
 const KEY: { [K in keyof StorageSchema]: string } = {
   theme: "theme",
+  themePreset: "themePreset",
   // legacy key kept for backwards compat with v0 installs
   locale: "i18n",
 };
