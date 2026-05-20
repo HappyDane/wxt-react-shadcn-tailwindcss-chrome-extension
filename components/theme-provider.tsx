@@ -1,34 +1,58 @@
-// ThemeContext.js
-import React, {createContext, useState, useContext, useEffect} from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { useAppStore, useStoreHydration } from "@/lib/store";
+import type { ThemeMode, ThemePreset } from "@/lib/storage";
 
-const ThemeContext = createContext<{ theme: string, toggleTheme: Function }>({
-    theme: 'light', toggleTheme: (theme: string) => {
-    }
-});
+type ResolvedTheme = "light" | "dark";
 
-export const useTheme = () => useContext(ThemeContext);
+interface ThemeContextValue {
+  theme: ThemeMode;
+  resolvedTheme: ResolvedTheme;
+  setTheme: (theme: ThemeMode) => void;
+  preset: ThemePreset;
+  setPreset: (preset: ThemePreset) => void;
+}
 
-export const ThemeProvider = ({children}: { children: any }) => {
-    const [theme, setTheme] = useState('light');
+// Only used to share the matchMedia listener state across the tree.
+const SystemThemeContext = createContext<ResolvedTheme>("light");
 
-    const toggleTheme = (theme: string) => {
-        setTheme(theme);
-    };
+function getSystemTheme(): ResolvedTheme {
+  if (typeof window === "undefined") return "light";
+  return window.matchMedia?.("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
 
-    async function initTheme() {
-        let data = await browser.storage.local.get('theme');
-        if (data.theme) {
-            setTheme(data.theme)
-        }
-    }
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  useStoreHydration();
+  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(getSystemTheme);
 
-    useEffect(() => {
-        initTheme();
-    }, []);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => setSystemTheme(mql.matches ? "dark" : "light");
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
 
-    return (
-        <ThemeContext.Provider value={{theme, toggleTheme}}>
-            {children}
-        </ThemeContext.Provider>
-    );
-};
+  return (
+    <SystemThemeContext.Provider value={systemTheme}>
+      {children}
+    </SystemThemeContext.Provider>
+  );
+}
+
+export function useTheme(): ThemeContextValue {
+  const systemTheme = useContext(SystemThemeContext);
+  const theme = useAppStore((s) => s.theme);
+  const preset = useAppStore((s) => s.themePreset);
+  const setTheme = useAppStore((s) => s.setTheme);
+  const setPreset = useAppStore((s) => s.setThemePreset);
+  const resolvedTheme: ResolvedTheme = theme === "system" ? systemTheme : theme;
+  return { theme, resolvedTheme, setTheme, preset, setPreset };
+}

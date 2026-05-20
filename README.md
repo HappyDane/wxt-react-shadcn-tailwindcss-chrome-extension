@@ -1,128 +1,248 @@
-<p align="center">
-   <video src="demo/demo.mp4"></video>
-  <img src="demo/demo.png" height="300" alt="AgentGPT Logo"/>
-</p>
-<p align="center">
-  <em>This is a boilerplate and starter for Chrome browser extension, built with Wxt、 React、 Tailwind css 、Shadcn ui and Typescript.
-Support dark mode and localization </em>
-</p>
-<p align="center">
-    <img alt="Node version" src="https://img.shields.io/static/v1?label=node&message=%20%3E=18&logo=node.js&color=2334D058" />
-      <a href="#"><img src="https://img.shields.io/badge/lang-English-blue.svg" alt="English"></a>
-  <a href="#"><img src="https://img.shields.io/badge/lang-简体中文-red.svg" alt="简体中文"></a>
-</p>
+# WXT + React + shadcn/ui Chrome Extension Starter
 
-<p align="center">
-<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-<a href="https://twitter.com/imtigerchew" target="_blank">🐦 X About me</a>
-</p>
+A batteries-included Chrome MV3 (and Firefox) extension starter built with:
 
----
+- [WXT](https://wxt.dev) — modern web-ext toolchain (auto manifests, HMR)
+- [React 18](https://react.dev) + [Vite](https://vitejs.dev)
+- [Tailwind CSS](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
+- [i18next](https://www.i18next.com) (per-namespace lazy loading)
+- TypeScript with `strict` + `noUncheckedIndexedAccess`
 
-## 🔐 Prerequisites :point_up:
+## What's included
 
-Before you get started, please make sure you have the following installed:
+| Surface              | Where                          | Notes                                     |
+| -------------------- | ------------------------------ | ----------------------------------------- |
+| Popup                | `entrypoints/popup/`           | Toolbar-icon click target; quick actions  |
+| Side panel UI        | `entrypoints/sidepanel/`       | MV3 `sidePanel` API                       |
+| Options page         | `entrypoints/options/`         | `chrome://extensions` → Details → Options |
+| Content script UI    | `entrypoints/content/`         | Mounted in a shadow root via `createShadowRootUi` |
+| Background service   | `entrypoints/background.ts`    | Typed message broker + command handler    |
+| Shared app shell     | `components/app/`              | One implementation used across surfaces   |
+| shadcn primitives    | `components/ui/`               | `npx shadcn-ui@latest add` to extend      |
+| Typed IPC            | `lib/messaging.ts`             | Discriminated-union messages              |
+| Typed storage        | `lib/storage.ts`               | `browser.storage.local` with a schema     |
+| Theme                | `components/theme-provider.tsx`| `light` / `dark` / `system` + accent presets, persisted |
+| Localization         | `locales/` + `public/_locales/`| i18next for UI, Chrome `_locales` for manifest |
 
-- An editor of your choice. For example, webstorm,[Visual Studio Code (VS Code)](https://code.visualstudio.com/download)
-- [Node.js](https://nodejs.org/en/download)
-- [Git](https://git-scm.com/downloads)
+### How the surfaces connect
 
-## 🗂️ Getting Started :rocket:
-1. **Open your editor**
-
-2. **Open the Terminal** 
-   - Typically, you can do this from a 'Terminal' tab or by using a shortcut
-     (e.g., `Ctrl + ~` for Windows or `Control + ~` for Mac in VS Code).
-
-3. **Clone the Repository and Navigate into the Directory** 
-   - Once your terminal is open, you can clone the repository and move into the directory by running the commands below.
-
-   - **For Mac/Linux users** :apple: :penguin:
-   ```bash
-   git clone git@github.com:imtiger/wxt-react-shadcn-tailwindcss-chrome-extension.git
-   cd wxt-react-shadcn-tailwindcss-chrome-extension
-   npm install
-   npm run dev
-   ```
-   - **For Windows users** :windows:
-   ```bash
-   git clone git@github.com:imtiger/wxt-react-shadcn-tailwindcss-chrome-extension.git
-   cd wxt-react-shadcn-tailwindcss-chrome-extension
-   npm install
-   npm run dev
-   ```
-4. **The browser will be auto opened**
-   - you will see the content-script panel and side panel
-
-
-## ❇️ Tech Stack
-
-- ✅ **Wxt**: [Wxt](https://wxt.dev)
-- ✅ **React**: [React](https://react.dev/)
-- ✅ **Tailwind css**: [Tailwind css](https://tailwindcss.com)
-- ✅ **Shadcn UI**: [Shadcn UI](https://ui.shadcn.com)
-
-## 🚀 Localization and i18n 
-
-The locales file in the locales folder ,and you can edit it.
-- [locales](locales)
-- [i18nConfig.ts](components/i18nConfig.ts)
-- [i18n.ts](components/i18n.ts)
-- you can call initTranslation method in the [i18n.ts](components/i18n.ts) with different namespaces ,and only load the namespace json file.
-```typescript
-initTranslations(i18nConfig.defaultLocale, ["common", "content"])
+```
+                       ┌──────────────┐
+ Toolbar icon click ─► │    Popup     │── "Open Side Panel" ──► sidePanel.open()
+                       └──────┬───────┘── "Toggle Widget"   ──► content script
+                              │
+                              └── "Open Options" ──► options page
 ```
 
-## 👀 Considerations
-- Chrome extension tailwind css rem not working shadow dom.
+Keyboard shortcuts (declared in `wxt.config.ts → manifest.commands`):
 
-Because Tailwind CSS uses rem by default, and rem is computed based on the font-size of the html element on the page, even if a content-script uses shadow dom, the internal elements' rem are also calculated based on the root html element's font-size of the host page. Therefore, to prevent style differences in the plugin due to varying font-sizes set by different websites, we can modify the default configuration of Tailwind CSS, allowing it to calculate directly in pixels.
+| Shortcut       | Action                                     |
+| -------------- | ------------------------------------------ |
+| `Alt+Shift+S`  | Open the side panel                        |
+| `Alt+Shift+W`  | Toggle the in-page widget on the active tab |
+
+Users can rebind both at `chrome://extensions/shortcuts`.
+
+## Getting started
 
 ```bash
-npm install @thedutchcoder/postcss-rem-to-px
-   ```
-```typescript
-//postcss.config.js
-export default {
-   plugins: {
-      tailwindcss: {},
-      '@thedutchcoder/postcss-rem-to-px': {}, // you can add option like the base font size
-      autoprefixer: {},
-   },    
-};
+nvm use            # uses .nvmrc → Node 20
+npm install
+npm run dev        # Chrome
+npm run dev:firefox
 ```
-- Add new component
+
+Then load `/.output/chrome-mv3` (or `/.output/firefox-mv2`) as an unpacked
+extension. WXT will hot-reload on save.
+
+## Scripts
+
+| Script                  | What it does                                |
+| ----------------------- | ------------------------------------------- |
+| `npm run dev`           | Dev server (Chrome)                         |
+| `npm run dev:firefox`   | Dev server (Firefox)                        |
+| `npm run build`         | Production build (Chrome)                   |
+| `npm run build:firefox` | Production build (Firefox)                  |
+| `npm run zip`           | Build + zip for the Chrome Web Store        |
+| `npm run zip:firefox`   | Build + zip for AMO                         |
+| `npm run compile`       | `tsc --noEmit` typecheck                    |
+| `npm run lint`          | ESLint, zero warnings                       |
+| `npm run format`        | Prettier write                              |
+| `npm run test`          | Vitest (JSDOM unit + component tests)       |
+| `npm run test:watch`    | Vitest in watch mode                        |
+| `npm run test:coverage` | Vitest with v8 coverage                     |
+| `npm run check`         | Typecheck + lint + format + test (CI mirror)|
+
+## Adding a shadcn component
+
 ```bash
-npx shadcn-ui@latest add
-```
-- Not trigger the click event listener.
-
-  When a popup or side panel is defined, and set
-```typescript
-browser.sidePanel.setPanelBehavior({openPanelOnActionClick: true}).catch((error: any) => console.error(error));
-```
-clicking on the browser extension icon won't trigger the listening event,and just open the side panel.
-```typescript
-//monitor the event from extension icon click
-browser.action.onClicked.addListener((tab) => {
-   // 发送消息给content-script.js
-   console.log("click icon")
-   console.log(tab)
-   browser.tabs.sendMessage(tab.id!, {messageType: MessageType.clickExtIcon});
-});
+npx shadcn-ui@latest add <component>
 ```
 
-## 👨‍🚀About Me
+`components.json` is already wired (`baseColor: zinc`, CSS variables, no prefix).
 
-- Full-Stack Engineer
+## Messaging
 
-- Once worked at Tencent and Alibaba
+Send a message from anywhere in the extension:
 
-[Github](https://github.com/imtigerchew)  
-[Twitter/X](https://twitter.com/imtigerchew)  
+```ts
+import { sendMessage } from "@/lib/messaging";
 
-If this project is helpful to you, star the repo and buy be a coffee, thank you guys.
+await sendMessage({ type: "changeTheme", theme: "dark" });
+```
 
-<a href="https://www.buymeacoffee.com/imtigerchew" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;" ></a>
+Subscribe (returns an unsubscribe for `useEffect` cleanup):
 
-<img src="./public/zsm.jpg" alt="赞赏作者" style="height: 200px; width: 200px">
+```ts
+import { onMessage } from "@/lib/messaging";
+
+useEffect(() =>
+  onMessage((m) => {
+    if (m.type === "changeLocale") void i18n.changeLanguage(m.locale);
+  }),
+);
+```
+
+Add a new variant in `lib/messaging.ts` and TypeScript's exhaustiveness
+checking will guide every consumer.
+
+## Storage
+
+```ts
+import { getStored, setStored } from "@/lib/storage";
+
+const theme = await getStored("theme");        // ThemeMode | undefined
+await setStored("locale", "zh_CN");
+```
+
+Extend the `StorageSchema` interface to add typed keys.
+
+## Cross-surface state (Zustand)
+
+`lib/store.ts` exposes `useAppStore` — a Zustand store that is mirrored to
+`browser.storage.local` and kept in sync across every surface via
+`browser.storage.onChanged`. Change the locale in the popup and the side
+panel updates instantly; toggle the theme in the in-page widget and the
+options page follows. No manual broadcasting required.
+
+```ts
+import { useAppStore } from "@/lib/store";
+
+const theme = useAppStore((s) => s.theme);
+useAppStore.getState().setTheme("dark");        // persists + syncs everywhere
+```
+
+The store is hydrated by the `ThemeProvider` (which calls `useStoreHydration`
+internally), so any entrypoint that wraps its tree in `<ThemeProvider>` gets
+this for free. State mutations are persisted automatically — if you only
+need to read/write state, do it through the store and skip `lib/storage.ts`
+entirely.
+
+## Localization
+
+UI strings live in `locales/<locale>/<namespace>.json`. Each entrypoint loads
+the namespaces it needs:
+
+```ts
+initTranslations(i18nConfig.defaultLocale, ["common", "sidepanel"]);
+```
+
+Manifest-level strings (extension name, description) live in
+`public/_locales/<locale>/messages.json` — referenced as `__MSG_extName__` in
+`wxt.config.ts`.
+
+## Adding a settings section
+
+`SettingsPage` (`components/app/settings-page.tsx`) is driven by a `TABS`
+array. To add a section:
+
+1. Build a card component (look at `components/settings/theme-settings.tsx`
+   for the shape).
+2. Append it to the relevant `TABS[i].sections` array — or add a new tab
+   entry with its own `id`.
+3. Add a `settingsTab.<id>` translation key in every locale.
+
+The grid layout, persistence and cross-surface sync are inherited from the
+store, so a new section only needs to wire its inputs to whatever it
+stores (typically `useAppStore`).
+
+## Theme presets
+
+Four accent palettes ship out of the box: `violet` (default), `zinc`, `green`,
+`rose`. Each is a small block of CSS variable overrides in `assets/main.css`
+and is selected via a `data-theme-preset="..."` attribute on the theme root.
+
+Add a new preset by:
+
+1. Defining `[data-theme-preset="..."]` and `.dark[data-theme-preset="..."]`
+   blocks in `assets/main.css`.
+2. Appending the id to `THEME_PRESETS` in `lib/storage.ts`.
+
+The `ThemeRoot` component (`components/app/theme-root.tsx`) applies both the
+`light`/`dark` class and the preset attribute — wrap each entrypoint's tree
+in `<ThemeRoot>`.
+
+## Testing
+
+[Vitest](https://vitest.dev) drives unit + component tests in JSDOM. The
+`wxt/browser` module is globally mocked by `tests/setup.ts` — every test
+gets a fresh in-memory `browser.storage.local`, message bus and command
+registry from `tests/mocks/browser.ts`. Call `emitStorageChange(...)` from
+the mock to simulate writes from another extension surface.
+
+Run on every save:
+
+```bash
+npm run test:watch
+```
+
+Examples that ship:
+
+| File                                    | What it covers                            |
+| --------------------------------------- | ----------------------------------------- |
+| `lib/storage.test.ts`                   | Typed get/set + the legacy locale key     |
+| `lib/messaging.test.ts`                 | `sendMessage`, broadcasting, unsubscribe  |
+| `lib/store.test.ts`                     | Setters persist, hydration, cross-surface sync |
+| `components/app/sidebar.test.tsx`       | Renders, click → callback, aria-current   |
+| `components/app/settings-page.test.tsx` | Tabs hide/show the right sections         |
+
+There are no end-to-end (Playwright) tests by default. If you need one,
+build the extension (`npm run build`) and load `.output/chrome-mv3` with
+`--disable-extensions-except=...` from a Playwright spec — but most
+template changes are well-covered by Vitest alone.
+
+## Notes on Tailwind in shadow DOM
+
+Tailwind's `rem` unit resolves against the host page's root font-size, so the
+content-script UI can drift visually from the side panel. We use
+`@thedutchcoder/postcss-rem-to-px` to convert `rem` → `px` at build time —
+see `postcss.config.js`.
+
+## Project layout
+
+```
+.
+├── assets/                # Tailwind base CSS (shared)
+├── components/
+│   ├── app/               # Shared feature components (Header, Sidebar, ...)
+│   ├── settings/          # Theme + locale settings panels
+│   ├── ui/                # shadcn primitives
+│   ├── i18n.ts            # i18next bootstrap
+│   ├── i18nConfig.ts      # Locales registry
+│   └── theme-provider.tsx
+├── entrypoints/
+│   ├── background.ts
+│   ├── content/           # Content script (shadow-root UI)
+│   └── sidepanel/         # MV3 side panel
+├── lib/
+│   ├── messaging.ts       # Typed IPC
+│   ├── storage.ts         # Typed storage
+│   └── utils.ts           # `cn()` helper
+├── locales/               # i18next translations
+├── public/_locales/       # Chrome manifest translations
+└── wxt.config.ts
+```
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
