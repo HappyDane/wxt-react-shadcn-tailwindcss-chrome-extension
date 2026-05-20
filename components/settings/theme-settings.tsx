@@ -2,7 +2,7 @@ import {Label} from "@/components/ui/label"
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group"
 import {Card} from "@/components/ui/card.tsx";
 import {browser} from "wxt/browser";
-import {MessageType} from "@/entrypoints/types.ts";
+import {MessageType} from "@/lib/messaging";
 import {useTheme} from "@/components/theme-provider.tsx";
 import {useTranslation} from "react-i18next";
 
