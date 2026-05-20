@@ -21,5 +21,9 @@
     "zinc": "Zinc",
     "green": "Green",
     "rose": "Rose"
+  },
+  "settingsTab": {
+    "general": "General",
+    "appearance": "Appearance"
   }
 }

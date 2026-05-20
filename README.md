@@ -151,6 +151,21 @@ Manifest-level strings (extension name, description) live in
 `public/_locales/<locale>/messages.json` — referenced as `__MSG_extName__` in
 `wxt.config.ts`.
 
+## Adding a settings section
+
+`SettingsPage` (`components/app/settings-page.tsx`) is driven by a `TABS`
+array. To add a section:
+
+1. Build a card component (look at `components/settings/theme-settings.tsx`
+   for the shape).
+2. Append it to the relevant `TABS[i].sections` array — or add a new tab
+   entry with its own `id`.
+3. Add a `settingsTab.<id>` translation key in every locale.
+
+The grid layout, persistence and cross-surface sync are inherited from the
+store, so a new section only needs to wire its inputs to whatever it
+stores (typically `useAppStore`).
+
 ## Theme presets
 
 Four accent palettes ship out of the box: `violet` (default), `zinc`, `green`,
@@ -189,6 +204,7 @@ Examples that ship:
 | `lib/messaging.test.ts`                 | `sendMessage`, broadcasting, unsubscribe  |
 | `lib/store.test.ts`                     | Setters persist, hydration, cross-surface sync |
 | `components/app/sidebar.test.tsx`       | Renders, click → callback, aria-current   |
+| `components/app/settings-page.test.tsx` | Tabs hide/show the right sections         |
 
 There are no end-to-end (Playwright) tests by default. If you need one,
 build the extension (`npm run build`) and load `.output/chrome-mv3` with

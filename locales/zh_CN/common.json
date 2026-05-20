@@ -21,5 +21,9 @@
     "zinc": "中性",
     "green": "绿色",
     "rose": "玫红"
+  },
+  "settingsTab": {
+    "general": "常规",
+    "appearance": "外观"
   }
 }
