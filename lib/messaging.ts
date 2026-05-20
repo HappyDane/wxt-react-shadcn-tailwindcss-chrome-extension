@@ -7,7 +7,7 @@ import type { ThemeMode } from "@/lib/storage";
  * the rest of the codebase.
  */
 export type ExtMessage =
-  | { type: "clickExtIcon" }
+  | { type: "toggleContent" }
   | { type: "changeTheme"; theme: ThemeMode }
   | { type: "changeLocale"; locale: string };
 

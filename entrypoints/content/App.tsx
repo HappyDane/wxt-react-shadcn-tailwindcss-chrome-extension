@@ -10,7 +10,7 @@ export default function App() {
 
   useEffect(() => {
     return onMessage((message) => {
-      if (message.type === "clickExtIcon") {
+      if (message.type === "toggleContent") {
         setVisible((v) => !v);
       }
     });

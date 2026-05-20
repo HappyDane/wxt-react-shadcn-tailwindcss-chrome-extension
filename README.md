@@ -12,15 +12,36 @@ A batteries-included Chrome MV3 (and Firefox) extension starter built with:
 
 | Surface              | Where                          | Notes                                     |
 | -------------------- | ------------------------------ | ----------------------------------------- |
+| Popup                | `entrypoints/popup/`           | Toolbar-icon click target; quick actions  |
 | Side panel UI        | `entrypoints/sidepanel/`       | MV3 `sidePanel` API                       |
+| Options page         | `entrypoints/options/`         | `chrome://extensions` → Details → Options |
 | Content script UI    | `entrypoints/content/`         | Mounted in a shadow root via `createShadowRootUi` |
-| Background service   | `entrypoints/background.ts`    | Typed message broker                      |
-| Shared app shell     | `components/app/`              | One implementation used by both surfaces  |
+| Background service   | `entrypoints/background.ts`    | Typed message broker + command handler    |
+| Shared app shell     | `components/app/`              | One implementation used across surfaces   |
 | shadcn primitives    | `components/ui/`               | `npx shadcn-ui@latest add` to extend      |
 | Typed IPC            | `lib/messaging.ts`             | Discriminated-union messages              |
 | Typed storage        | `lib/storage.ts`               | `browser.storage.local` with a schema     |
 | Theme                | `components/theme-provider.tsx`| `light` / `dark` / `system` + persistence |
 | Localization         | `locales/` + `public/_locales/`| i18next for UI, Chrome `_locales` for manifest |
+
+### How the surfaces connect
+
+```
+                       ┌──────────────┐
+ Toolbar icon click ─► │    Popup     │── "Open Side Panel" ──► sidePanel.open()
+                       └──────┬───────┘── "Toggle Widget"   ──► content script
+                              │
+                              └── "Open Options" ──► options page
+```
+
+Keyboard shortcuts (declared in `wxt.config.ts → manifest.commands`):
+
+| Shortcut       | Action                                     |
+| -------------- | ------------------------------------------ |
+| `Alt+Shift+S`  | Open the side panel                        |
+| `Alt+Shift+W`  | Toggle the in-page widget on the active tab |
+
+Users can rebind both at `chrome://extensions/shortcuts`.
 
 ## Getting started
 
