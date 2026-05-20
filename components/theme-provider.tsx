@@ -1,18 +1,12 @@
 import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
   type ReactNode,
 } from "react";
-import {
-  getStored,
-  setStored,
-  type ThemeMode,
-  type ThemePreset,
-} from "@/lib/storage";
+import { useAppStore, useStoreHydration } from "@/lib/store";
+import type { ThemeMode, ThemePreset } from "@/lib/storage";
 
 type ResolvedTheme = "light" | "dark";
 
@@ -24,13 +18,8 @@ interface ThemeContextValue {
   setPreset: (preset: ThemePreset) => void;
 }
 
-const ThemeContext = createContext<ThemeContextValue | null>(null);
-
-export function useTheme(): ThemeContextValue {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error("useTheme must be used inside <ThemeProvider>");
-  return ctx;
-}
+// Only used to share the matchMedia listener state across the tree.
+const SystemThemeContext = createContext<ResolvedTheme>("light");
 
 function getSystemTheme(): ResolvedTheme {
   if (typeof window === "undefined") return "light";
@@ -39,29 +28,9 @@ function getSystemTheme(): ResolvedTheme {
     : "light";
 }
 
-interface ThemeProviderProps {
-  children: ReactNode;
-  defaultTheme?: ThemeMode;
-  defaultPreset?: ThemePreset;
-}
-
-export function ThemeProvider({
-  children,
-  defaultTheme = "system",
-  defaultPreset = "violet",
-}: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<ThemeMode>(defaultTheme);
-  const [preset, setPresetState] = useState<ThemePreset>(defaultPreset);
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  useStoreHydration();
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(getSystemTheme);
-
-  useEffect(() => {
-    getStored("theme").then((stored) => {
-      if (stored) setThemeState(stored);
-    });
-    getStored("themePreset").then((stored) => {
-      if (stored) setPresetState(stored);
-    });
-  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
@@ -71,24 +40,19 @@ export function ThemeProvider({
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  const setTheme = useCallback((next: ThemeMode) => {
-    setThemeState(next);
-    void setStored("theme", next);
-  }, []);
-
-  const setPreset = useCallback((next: ThemePreset) => {
-    setPresetState(next);
-    void setStored("themePreset", next);
-  }, []);
-
-  const resolvedTheme: ResolvedTheme = theme === "system" ? systemTheme : theme;
-
-  const value = useMemo(
-    () => ({ theme, resolvedTheme, setTheme, preset, setPreset }),
-    [theme, resolvedTheme, setTheme, preset, setPreset]
-  );
-
   return (
-    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+    <SystemThemeContext.Provider value={systemTheme}>
+      {children}
+    </SystemThemeContext.Provider>
   );
+}
+
+export function useTheme(): ThemeContextValue {
+  const systemTheme = useContext(SystemThemeContext);
+  const theme = useAppStore((s) => s.theme);
+  const preset = useAppStore((s) => s.themePreset);
+  const setTheme = useAppStore((s) => s.setTheme);
+  const setPreset = useAppStore((s) => s.setThemePreset);
+  const resolvedTheme: ResolvedTheme = theme === "system" ? systemTheme : theme;
+  return { theme, resolvedTheme, setTheme, preset, setPreset };
 }

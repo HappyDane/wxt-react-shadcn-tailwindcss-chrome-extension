@@ -3,7 +3,6 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useTheme } from "@/components/theme-provider";
-import { sendMessage } from "@/lib/messaging";
 import type { ThemeMode } from "@/lib/storage";
 
 const THEMES: ThemeMode[] = ["light", "dark", "system"];
@@ -12,12 +11,6 @@ export function ThemeSettings() {
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
 
-  const onChange = (next: string) => {
-    const mode = next as ThemeMode;
-    setTheme(mode);
-    void sendMessage({ type: "changeTheme", theme: mode });
-  };
-
   return (
     <Card>
       <div className="space-y-1.5 p-6 pb-3">
@@ -25,7 +18,11 @@ export function ThemeSettings() {
           {t("themeSettings")}
         </h3>
       </div>
-      <RadioGroup value={theme} onValueChange={onChange} className="p-6 pt-2">
+      <RadioGroup
+        value={theme}
+        onValueChange={(v) => setTheme(v as ThemeMode)}
+        className="p-6 pt-2"
+      >
         {THEMES.map((option) => (
           <div
             key={option}

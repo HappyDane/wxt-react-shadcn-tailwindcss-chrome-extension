@@ -114,6 +114,27 @@ await setStored("locale", "zh_CN");
 
 Extend the `StorageSchema` interface to add typed keys.
 
+## Cross-surface state (Zustand)
+
+`lib/store.ts` exposes `useAppStore` — a Zustand store that is mirrored to
+`browser.storage.local` and kept in sync across every surface via
+`browser.storage.onChanged`. Change the locale in the popup and the side
+panel updates instantly; toggle the theme in the in-page widget and the
+options page follows. No manual broadcasting required.
+
+```ts
+import { useAppStore } from "@/lib/store";
+
+const theme = useAppStore((s) => s.theme);
+useAppStore.getState().setTheme("dark");        // persists + syncs everywhere
+```
+
+The store is hydrated by the `ThemeProvider` (which calls `useStoreHydration`
+internally), so any entrypoint that wraps its tree in `<ThemeProvider>` gets
+this for free. State mutations are persisted automatically — if you only
+need to read/write state, do it through the store and skip `lib/storage.ts`
+entirely.
+
 ## Localization
 
 UI strings live in `locales/<locale>/<namespace>.json`. Each entrypoint loads

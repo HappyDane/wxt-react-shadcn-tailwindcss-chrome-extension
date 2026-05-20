@@ -1,16 +1,12 @@
 import { browser } from "wxt/browser";
-import type { ThemeMode, ThemePreset } from "@/lib/storage";
 
 /**
- * Typed, discriminated-union message protocol for all IPC inside the
- * extension. Add a new variant here and exhaustiveness checks will guide
- * the rest of the codebase.
+ * Typed, discriminated-union message protocol for *imperative* IPC between
+ * extension contexts. State sync (theme, locale, preset) is handled by the
+ * Zustand store + `browser.storage.onChanged` and does not flow through
+ * here — only events that are not just state changes belong in this union.
  */
-export type ExtMessage =
-  | { type: "toggleContent" }
-  | { type: "changeTheme"; theme: ThemeMode }
-  | { type: "changeThemePreset"; preset: ThemePreset }
-  | { type: "changeLocale"; locale: string };
+export type ExtMessage = { type: "toggleContent" };
 
 export type ExtMessageType = ExtMessage["type"];
 

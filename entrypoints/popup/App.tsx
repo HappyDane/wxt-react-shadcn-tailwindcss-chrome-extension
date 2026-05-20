@@ -1,26 +1,23 @@
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { browser } from "wxt/browser";
 import { ExternalLink, PanelRightOpen, Settings2, Eye } from "lucide-react";
 import "../../assets/main.css";
 import { Button } from "@/components/ui/button";
 import { ThemeRoot } from "@/components/app/theme-root";
+import { useSyncI18n } from "@/components/app/use-sync-i18n";
 import { useTheme } from "@/components/theme-provider";
 import languages from "@/components/i18nConfig";
 import { sendMessage } from "@/lib/messaging";
-import { getStored, setStored, type ThemeMode } from "@/lib/storage";
+import { useAppStore } from "@/lib/store";
+import type { ThemeMode } from "@/lib/storage";
 
 const THEMES: ThemeMode[] = ["light", "dark", "system"];
 
 export default function App() {
+  useSyncI18n();
   const { theme, setTheme } = useTheme();
   const { t, i18n } = useTranslation();
-
-  useEffect(() => {
-    getStored("locale").then((locale) => {
-      if (locale) void i18n.changeLanguage(locale);
-    });
-  }, [i18n]);
+  const setLocale = useAppStore((s) => s.setLocale);
 
   const openSidePanel = async () => {
     const [tab] = await browser.tabs.query({
@@ -43,15 +40,9 @@ export default function App() {
     window.close();
   };
 
-  const onThemeChange = (next: ThemeMode) => {
-    setTheme(next);
-    void sendMessage({ type: "changeTheme", theme: next });
-  };
-
   const onLocaleChange = async (locale: string) => {
     await i18n.changeLanguage(locale);
-    await setStored("locale", locale);
-    await sendMessage({ type: "changeLocale", locale });
+    setLocale(locale);
   };
 
   return (
@@ -96,7 +87,7 @@ export default function App() {
                 key={opt}
                 size="sm"
                 variant={theme === opt ? "default" : "outline"}
-                onClick={() => onThemeChange(opt)}
+                onClick={() => setTheme(opt)}
                 className="h-7 px-2 text-xs capitalize"
               >
                 {t(`theme.${opt}`, opt)}

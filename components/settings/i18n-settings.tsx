@@ -3,16 +3,15 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import languages from "@/components/i18nConfig";
-import { sendMessage } from "@/lib/messaging";
-import { setStored } from "@/lib/storage";
+import { useAppStore } from "@/lib/store";
 
 export function I18nSettings() {
   const { t, i18n } = useTranslation();
+  const setLocale = useAppStore((s) => s.setLocale);
 
   const onChange = async (locale: string) => {
     await i18n.changeLanguage(locale);
-    await setStored("locale", locale);
-    await sendMessage({ type: "changeLocale", locale });
+    setLocale(locale);
   };
 
   return (

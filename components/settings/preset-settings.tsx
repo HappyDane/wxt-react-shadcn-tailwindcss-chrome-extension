@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { useTheme } from "@/components/theme-provider";
-import { sendMessage } from "@/lib/messaging";
 import { THEME_PRESETS, type ThemePreset } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 
@@ -16,11 +15,6 @@ export function PresetSettings() {
   const { preset, setPreset } = useTheme();
   const { t } = useTranslation();
 
-  const onSelect = (next: ThemePreset) => {
-    setPreset(next);
-    void sendMessage({ type: "changeThemePreset", preset: next });
-  };
-
   return (
     <Card>
       <div className="space-y-1.5 p-6 pb-3">
@@ -33,7 +27,7 @@ export function PresetSettings() {
           <button
             key={p}
             type="button"
-            onClick={() => onSelect(p)}
+            onClick={() => setPreset(p)}
             aria-pressed={preset === p}
             className={cn(
               "flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors",
